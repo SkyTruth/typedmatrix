@@ -1,6 +1,6 @@
 import unittest2
 from .. import TypedMatrix
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class TypedMatrixTest(unittest2.TestCase):
@@ -55,6 +55,11 @@ class TypedMatrixTest(unittest2.TestCase):
         self.assertDictEqual(dict(name='F', type='Float32'), header['cols'][1])
         self.assertDictEqual(dict(name='I', type='Int32'), header['cols'][2])
         self.assertDictEqual(data[0], data_out)
+
+    def test_unsupported_type(self):
+        data_in = dict(I=1, F=2.0, D=datetime(2014, 1, 1), unsupported=timedelta(1))
+        self.assertRaises(TypeError, TypedMatrix.pack, data_in)
+
 
     # def test_bad_format(self):
     #     self.assertRaises(AssertionError, TypedMatrix.unpack, packed_str='not valid')

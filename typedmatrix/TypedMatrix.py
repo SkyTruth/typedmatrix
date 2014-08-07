@@ -33,7 +33,7 @@ typedefaultmap = {
 def get_columns(data):
     """
     Gets the column definitions implicit in a dict or list of dicts.
-    Ignores any field which has a datatype that is not in typemap.
+    If any field which has a datatype that is not in typemap, thows ???
     """
     # make data iterable
     if type(data) is dict:
@@ -43,7 +43,8 @@ def get_columns(data):
     for i, d in enumerate(data):
         for key, value in d.iteritems():
             t = type(value)
-            if t not in typemap: continue
+            if t not in typemap:
+                raise TypeError ('TypedMatrix: "%s" is not a supported type in field "%s"' % (type(value), key))
             if key not in cols:
                 cols[key] = {'name': key, 'type': typemap[t]}
     cols = cols.values()
