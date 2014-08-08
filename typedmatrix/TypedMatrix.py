@@ -33,7 +33,7 @@ typedefaultmap = {
 def get_columns(data):
     """
     Gets the column definitions implicit in a dict or list of dicts.
-    If any field which has a datatype that is not in typemap, thows ???
+    If any field which has a datatype that is not in typemap, thows TypeException
     """
     # make data iterable
     if type(data) is dict:
