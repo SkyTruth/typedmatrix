@@ -1,8 +1,8 @@
 from . import TypedMatrix
 
-__version__ = 0.1
+__version__ = 1.0
 __author__ = 'Paul Woods'
-__source__ = 'https://github.com/SkyTruth/pelagos/typedmatrix'
+__source__ = 'https://github.com/SkyTruth/typedmatrix'
 __license__ = """The MIT License (MIT)
 
 Copyright (c) 2014 SkyTruth
