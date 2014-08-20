@@ -31,7 +31,7 @@ Currently two fundamental data types are supported
     Int32
     Float32
 
-Special handling is provided for convertiong datetime values to Float32
+Special handling is provided for converting datetime values to Float32
 
 The format includes a header containing a json object, which can contain arbitrary content.
 
