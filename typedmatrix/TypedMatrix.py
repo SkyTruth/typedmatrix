@@ -15,6 +15,8 @@ from datetime import datetime
 #       ]
 # }
 
+magic = 'tmtx'
+version = 1
 typemap = {
     int: 'Int32',
     float: 'Float32',
@@ -28,6 +30,11 @@ typedefaultmap = {
     'Int32': 0,
     'Float32': 0.0,
 }
+orientation_map = {
+    'rowwise': 'r',
+    'columnwise': 'c'
+}
+orientation_unpack_map = {v: k for k, v in orientation_map.items()}
 
 
 def get_columns(data):
@@ -79,11 +86,14 @@ def row_fmt(columns):
     return '<' + ''.join(typeformatmap[col['type']] for col in columns)
 
 
-def pack(data, extra_header_fields=None, columns=None):
+def pack(data, extra_header_fields=None, columns=None, orientation='rowwise'):
     """
     Pack a dict or list of dicts into a TypedMatrix binary packed string
     If a list of columns is not given, the columns are derived from the data using get_columns()
     extra_header_fields can supply an optional dict with additional fields to be included in the packed header
+
+    orientation can be 'rowwise' or 'columnwise'.   For row-wise orientation, the typedmatrix will stored as a list of rows.
+    for column-wise oreintation it is stored as a list of columns.
     """
 
     # make data iterable
@@ -103,23 +113,40 @@ def pack(data, extra_header_fields=None, columns=None):
     f = StringIO.StringIO()
     headerstr = json.dumps(header)
 
-    #TODO: #100 write "magic" file format token at the start
-    # f.write("tmtx")
-
+    # write "magic" file format token at the start
+    f.write(struct.pack('<%sc' % len(magic), *magic))
+    f.write(struct.pack('<i', version))
+    orientation = orientation_map.get(orientation)
+    if orientation is None:
+        raise ValueError ('TypedMatrix: unknown orientation %s' % orientation)
+    f.write(struct.pack("<c", orientation))
     f.write(struct.pack("<i", len(headerstr)))
     f.write(headerstr)
 
-    formatmap = row_fmt(columns)
-    #    inverse_typemap = {v: k for k, v in typemap.iteritems()}
     colspecs = [{'name': col['name'], 'type': col['type'], 'default': typedefaultmap[col['type']]} for col in columns]
 
-    for d in data:
-        f.write(struct.pack(
-            formatmap,
-            *[conv(d[colspec['name']], colspec['type'], colspec['default'])
-              for colspec in colspecs]))
+    if orientation == 'r':
+        for d in data:
+            f.write(struct.pack(
+                row_fmt(columns),
+                *[conv(d[colspec['name']], colspec['type'], colspec['default'])
+                  for colspec in colspecs]))
+    else:
+        for colspec in colspecs:
+            f.write(struct.pack(
+                '<%s%s' % (len(data),typeformatmap[colspec['type']]),
+                *[conv(d[colspec['name']], colspec['type'], colspec['default'])
+                  for d in data]))
 
     return f.getvalue()
+
+
+def _struct_read (f, t, n=1):
+    fmt = '<%s%s' % (n, t)
+    result = struct.unpack(fmt, f.read(struct.calcsize(fmt)))
+    if n==1:
+        return result[0]
+    return result
 
 
 def unpack(packed_str):
@@ -129,18 +156,31 @@ def unpack(packed_str):
     """
     f = StringIO.StringIO(packed_str)
 
-    #TODO: #100 read "magic" file format token
-    # token = f.read(4)
-    # assert(token == 'tmtx')
+    # read "magic" file format token
+    token = ''.join(_struct_read(f, 'c', len(magic)))
+    assert(token == magic)
+    ver = _struct_read(f,'i')
+    assert (ver == version)  # only supports one version right now
 
-    header_len = struct.unpack('<i', f.read(struct.calcsize('<i')))[0]
+    orientation = _struct_read(f,'c')
+    assert (orientation in orientation_unpack_map)
+
+    header_len = _struct_read(f,'i')
     header = json.loads(f.read(header_len))
 
-    fmt = row_fmt(header['cols'])
-    data = []
-    col_names = [col['name'] for col in header['cols']]
-    for i in range(0, header['length']):
-        data.append(dict(zip(col_names, struct.unpack(fmt, f.read(struct.calcsize(fmt))))))
+    if orientation == 'r':
+        fmt = row_fmt(header['cols'])
+        data = []
+        col_names = [col['name'] for col in header['cols']]
+        for i in range(0, header['length']):
+            data.append(dict(zip(col_names, struct.unpack(fmt, f.read(struct.calcsize(fmt))))))
+    else:
+        col_data = []
+        col_names = [col['name'] for col in header['cols']]
+        for col in header['cols']:
+            col_data.append(_struct_read(f, typeformatmap[col['type']], header['length']))
+        col_indexes = range(0, len(col_names))
+        data = [dict(zip(col_names, [col_data[c][i] for c in col_indexes])) for i in xrange(0, header['length'])]
 
     return header, data
 

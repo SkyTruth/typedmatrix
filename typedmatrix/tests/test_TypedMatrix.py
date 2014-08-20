@@ -60,6 +60,12 @@ class TypedMatrixTest(unittest2.TestCase):
         data_in = dict(I=1, F=2.0, D=datetime(2014, 1, 1), unsupported=timedelta(1))
         self.assertRaises(TypeError, TypedMatrix.pack, data_in)
 
+    def test_bad_format(self):
+        self.assertRaises(AssertionError, TypedMatrix.unpack, packed_str='not valid')
 
-    # def test_bad_format(self):
-    #     self.assertRaises(AssertionError, TypedMatrix.unpack, packed_str='not valid')
+    def test_columnwise(self):
+        data_in = [{'A': 1, 'B': 2}, {'A': 11, 'B': 22}, {'A': 111, 'B': 222}]
+        packed_str = TypedMatrix.pack(data_in, orientation='columnwise')
+        header, data_out = TypedMatrix.unpack(packed_str)
+        self.assertEqual(3, header['length'])
+        self.assertListEqual(data_in, data_out)
