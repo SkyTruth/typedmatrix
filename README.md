@@ -62,12 +62,23 @@ Usage Examples
     >>> data.append ({'int':2, 'float':2.0, 'timestamp':datetime(2014,1,2)})
     >>> t_str = TypedMatrix.pack(data)
 
-    # Typedmatrix is now coded as a binary string
+    # Typedmatrix is now coded as a binary string, packed row-wise
     >>> t_str
-    'tmtx\x89\x00\x00\x00{"length": 2, "cols": [{"type": "Float32", "name": "float"}, {"type": "Int32", "name": "int"},
-    {"type": "Float32", "name": "timestamp"}]}\x00\x00\x80?\x01\x00\x00\x00\x8d\xa5\xa1S\x00\x00\x00@\x02\x00\x00\x00
-    \xa8\xa1S'
-    >>> header, data = TypedMatrix.unpack(t)
+    'tmtx\x01\x00\x00\x00r\x89\x00\x00\x00{"length": 2, "cols": [{"type": "Float32", "name": "float"}, {"type": "Int32", "name": "int"}, {"type": "Float32", "name": "timestamp"}]}\x00\x00\x80?\x01\x00\x00\x00\x8d\xa5\xa1S\x00\x00\x00@\x02\x00\x00\x00 \xa8\xa1S'
+    >>> header, data = TypedMatrix.unpack(t_str)
+    >>> pprint(header)
+    {u'cols': [{u'name': u'float', u'type': u'Float32'},
+               {u'name': u'int', u'type': u'Int32'},
+               {u'name': u'timestamp', u'type': u'Float32'}],
+     u'length': 2}
+    >>> pprint(data)
+    [{u'float': 1.0, u'int': 1, u'timestamp': 1388534431744.0},
+     {u'float': 2.0, u'int': 2, u'timestamp': 1388620808192.0}]
+
+    # pack data column-wise
+    >>> TypedMatrix.pack(data,orientation='columnwise')
+    'tmtx\x01\x00\x00\x00c\x89\x00\x00\x00{"length": 2, "cols": [{"type": "Float32", "name": "float"}, {"type": "Int32", "name": "int"}, {"type": "Float32", "name": "timestamp"}]}\x00\x00\x80?\x00\x00\x00@\x01\x00\x00\x00\x02\x00\x00\x00\x8d\xa5\xa1S \xa8\xa1S'
+    >>> header, data = TypedMatrix.unpack(t_str)
     >>> pprint(header)
     {u'cols': [{u'name': u'float', u'type': u'Float32'},
                {u'name': u'int', u'type': u'Int32'},
