@@ -9,7 +9,7 @@ class TypedMatrixTest(unittest2.TestCase):
         cols = TypedMatrix.get_columns(data)
         self.assertEqual(1, len(cols))
         self.assertEqual('A', cols[0]['name'])
-        self.assertEqual('Int32', cols[0]['type'])
+        self.assertEqual('Float32', cols[0]['type'])
 
     def test_pack(self):
         data = {'A': 1}
@@ -53,7 +53,7 @@ class TypedMatrixTest(unittest2.TestCase):
         header, data = TypedMatrix.unpack(packed_str)
         self.assertDictEqual(dict(name='D', type='Float32'), header['cols'][0])
         self.assertDictEqual(dict(name='F', type='Float32'), header['cols'][1])
-        self.assertDictEqual(dict(name='I', type='Int32'), header['cols'][2])
+        self.assertDictEqual(dict(name='I', type='Float32'), header['cols'][2])
         self.assertDictEqual(data[0], data_out)
 
     def test_unsupported_type(self):
