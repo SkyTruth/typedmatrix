@@ -18,16 +18,14 @@ from datetime import datetime
 magic = 'tmtx'
 version = 1
 typemap = {
-    int: 'Int32',
+    int: 'Float32',
     float: 'Float32',
     datetime: 'Float32',
 }
 typeformatmap = {
-    'Int32': 'i',
     'Float32': 'f',
 }
 typedefaultmap = {
-    'Int32': 0,
     'Float32': 0.0,
 }
 orientation_map = {
@@ -64,10 +62,7 @@ def _datetime2timestamp(dt):
 
 
 def conv(data, t, default):
-    if 'Int32' == t:
-        assert type(data) is not datetime, 'Cannot convert datetime to int32.'
-        fn = int
-    elif 'Float32' == t:
+    if 'Float32' == t:
         if type(data) is datetime:
             fn = _datetime2timestamp
         else:
