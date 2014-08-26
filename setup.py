@@ -9,7 +9,7 @@ import typedmatrix
 setup(name='typedmatrix',
       version=typedmatrix.__version__,
       author=typedmatrix.__author__,
-      author_email='wursterk@gmail.com',
+      author_email='paul@skytruth.org',
       description=typedmatrix.__doc__,
       long_description=typedmatrix.__doc__,
       url=typedmatrix.__source__,
