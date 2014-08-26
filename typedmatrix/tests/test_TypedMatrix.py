@@ -36,6 +36,9 @@ class TypedMatrixTest(unittest2.TestCase):
         packed_str = TypedMatrix.pack(data, header)
         header, data = TypedMatrix.unpack(packed_str)
         self.assertEqual('extra', header['H'])
+        packed_str = TypedMatrix.pack(data, extra_header_fields=header, orientation='columnwise')
+        header, data = TypedMatrix.unpack(packed_str)
+        self.assertEqual('extra', header['H'])
 
     def test_get_packed_float_value(self):
         self.assertEqual(TypedMatrix.get_packed_float_value(1.0), 1.0)
@@ -68,4 +71,10 @@ class TypedMatrixTest(unittest2.TestCase):
         packed_str = TypedMatrix.pack(data_in, orientation='columnwise')
         header, data_out = TypedMatrix.unpack(packed_str)
         self.assertEqual(3, header['length'])
+        self.assertListEqual(data_in, data_out)
+
+        data_in = [{'A': 1, 'B': 2}]
+        packed_str = TypedMatrix.pack(data_in, orientation='columnwise')
+        header, data_out = TypedMatrix.unpack(packed_str)
+        self.assertEqual(1, header['length'])
         self.assertListEqual(data_in, data_out)

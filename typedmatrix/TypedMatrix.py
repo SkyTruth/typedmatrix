@@ -139,7 +139,7 @@ def pack(data, extra_header_fields=None, columns=None, orientation='rowwise'):
 def _struct_read (f, t, n=1):
     fmt = '<%s%s' % (n, t)
     result = struct.unpack(fmt, f.read(struct.calcsize(fmt)))
-    if n==1:
+    if n == 1:
         return result[0]
     return result
 
@@ -175,7 +175,10 @@ def unpack(packed_str):
         for col in header['cols']:
             col_data.append(_struct_read(f, typeformatmap[col['type']], header['length']))
         col_indexes = range(0, len(col_names))
-        data = [dict(zip(col_names, [col_data[c][i] for c in col_indexes])) for i in xrange(0, header['length'])]
+        if header['length'] > 1:
+            data = [dict(zip(col_names, [col_data[c][i] for c in col_indexes])) for i in xrange(0, header['length'])]
+        else:
+            data = [dict(zip(col_names, [col_data[c] for c in col_indexes]))]
 
     return header, data
 
