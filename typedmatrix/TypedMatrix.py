@@ -105,6 +105,12 @@ def pack(data, extra_header_fields=None, columns=None, orientation='rowwise'):
         columns = get_columns(data)
     header['cols'] = columns
 
+    if 'colsByName' in header:
+        colsByName = header.pop("colsByName")
+        for col in header['cols']:
+            if col['name'] in colsByName:
+                col.update(colsByName[col['name']])
+
     f = StringIO.StringIO()
     headerstr = json.dumps(header)
 
