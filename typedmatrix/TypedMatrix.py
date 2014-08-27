@@ -172,13 +172,16 @@ def unpack(packed_str):
     else:
         col_data = []
         col_names = [col['name'] for col in header['cols']]
+        length = header['length']
         for col in header['cols']:
-            col_data.append(_struct_read(f, typeformatmap[col['type']], header['length']))
+            col_data.append(_struct_read(f, typeformatmap[col['type']], length))
         col_indexes = range(0, len(col_names))
-        if header['length'] > 1:
-            data = [dict(zip(col_names, [col_data[c][i] for c in col_indexes])) for i in xrange(0, header['length'])]
-        else:
+        if length > 1:
+            data = [dict(zip(col_names, [col_data[c][i] for c in col_indexes])) for i in xrange(0, length)]
+        elif length == 1:
             data = [dict(zip(col_names, [col_data[c] for c in col_indexes]))]
+        else:
+            data = []
 
     return header, data
 

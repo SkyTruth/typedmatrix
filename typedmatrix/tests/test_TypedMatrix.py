@@ -85,3 +85,8 @@ class TypedMatrixTest(unittest2.TestCase):
         header, data = TypedMatrix.unpack(packed_str)
         self.assertEqual(0, header['length'])
         self.assertEqual(len(data), 0)
+
+        packed_str = TypedMatrix.pack(data, orientation='columnwise')
+        header, data = TypedMatrix.unpack(packed_str)
+        self.assertEqual(0, header['length'])
+        self.assertEqual(len(data), 0)
