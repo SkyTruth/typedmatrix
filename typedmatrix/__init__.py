@@ -1,6 +1,6 @@
 from . import TypedMatrix
 
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 __author__ = 'Paul Woods'
 __source__ = 'https://github.com/SkyTruth/typedmatrix'
 __license__ = """The MIT License (MIT)
