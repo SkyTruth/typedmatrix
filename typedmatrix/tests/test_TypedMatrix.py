@@ -78,3 +78,10 @@ class TypedMatrixTest(unittest2.TestCase):
         header, data_out = TypedMatrix.unpack(packed_str)
         self.assertEqual(1, header['length'])
         self.assertListEqual(data_in, data_out)
+
+    def test_empty(self):
+        data = []
+        packed_str = TypedMatrix.pack(data)
+        header, data = TypedMatrix.unpack(packed_str)
+        self.assertEqual(0, header['length'])
+        self.assertEqual(len(data), 0)
